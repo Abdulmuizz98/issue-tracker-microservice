@@ -12,28 +12,20 @@ suite("Functional Tests", function () {
   // Connect to the database before running any tests.
   this.timeout(10000);
   before(async () => {
-    // await mongoose.connection.close();
-    // const testDbUri = process.env.TEST_MONGO_URI;
-    // await mongoose.connect(testDbUri, {
-    //   useNewUrlParser: true,
-    //   useUnifiedTopology: true,
-    // });
     await mongoose.connection.dropDatabase();
-    // await connection.connection.db.dropDatabase();
-    // await mongoose.connection.db.dropDatabase();
   });
 
   // Disconnect from the database after running all the tests.
-  after(async () => {
-    await mongoose.connection.close();
-  });
+  // after(async () => {
+  //   if(process.env.NODE_ENV === 'test')
+  //   await mongoose.connection.close();
+  // });
 
   // Delete all documents from the database before each test.
   afterEach(async () => {
     await mongoose.connection.dropDatabase();
   });
 
-  //   this.timeout(5000);
   const seedData = [
     {
       project: "test",
@@ -212,8 +204,8 @@ suite("Functional Tests", function () {
         });
 
       assert.equal(res.status, 200);
-      assert.equal(res.body.issue_title, "Updated Title");
-      assert.equal(res.body.issue_text, "Unit Test");
+      assert.equal(res.body.result, "successfully updated");
+      assert.equal(res.body._id, _id);
 
       // Verify that data is saved to the database.
       const projectDoc = await Project.findOne({ project: "test" });
@@ -236,8 +228,8 @@ suite("Functional Tests", function () {
         });
 
       assert.equal(res.status, 200);
-      assert.equal(res.body.issue_title, "Updated Title");
-      assert.equal(res.body.issue_text, "Updated Text");
+      assert.equal(res.body.result, "successfully updated");
+      assert.equal(res.body._id, _id);
 
       // Verify that data is saved to the database.
       const projectDoc = await Project.findOne({ project: "test" });
@@ -309,8 +301,8 @@ suite("Functional Tests", function () {
         });
 
       assert.equal(res.status, 200);
-      assert.equal(res.body.issue_title, "Title 1");
-      assert.equal(res.body.issue_text, "Unit Test");
+      assert.equal(res.body.result, "successfully deleted");
+      assert.equal(res.body._id, _id);
 
       // Verify that the issue data is deleted from the database.
       const projectDoc = await Project.findOne({ project: "test" });

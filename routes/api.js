@@ -58,9 +58,11 @@ module.exports = function (app) {
       let project = req.params.project;
       const { _id, ...payload } = req.body;
 
+      if (!_id) return res.json({ error: "missing _id" });
+
       if (Object.keys(payload).length === 0)
         // check if object is empty
-        return res.json({ error: "no update field(s) sent" });
+        return res.json({ error: "no update field(s) sent", _id });
 
       for (let key in payload) {
         if (!payload[key]) delete payload[key];
@@ -70,16 +72,10 @@ module.exports = function (app) {
       if (payload.open === "true" || payload.open === "false")
         payload.open = payload.open === "true";
 
-      if (!_id) {
-        return res.json({ error: "missing _id" });
-      }
-      // console.log(_id, payload);
-
       try {
         const projectDoc = await Project.findOne({ project: project });
 
         if (!projectDoc) return res.json({ error: "project not found" });
-        // console.log("ProjectDoc: ", projectDoc);
 
         const issueDoc = projectDoc.issues.find(
           (issue) => issue._id.toString() === _id
@@ -87,15 +83,14 @@ module.exports = function (app) {
 
         if (!issueDoc)
           return res.json({ error: "issue not found invalid _id" });
-        // console.log("IssueDoc: ", issueDoc);
 
         Object.assign(issueDoc, payload);
 
         await projectDoc.save();
 
-        return res.json(issueDoc);
+        return res.json({ result: "successfully updated", _id });
       } catch (err) {
-        res.json({ error: err.message });
+        res.json({ error: "could not update", _id });
       }
     })
 
@@ -103,9 +98,7 @@ module.exports = function (app) {
       let project = req.params.project;
       const _id = req.body._id;
 
-      if (!_id) {
-        return res.json({ error: "missing _id" });
-      }
+      if (!_id) return res.json({ error: "missing _id" });
 
       try {
         const projectDoc = await Project.findOne({ project: project });
@@ -119,13 +112,12 @@ module.exports = function (app) {
         if (issueIndex === -1)
           return res.json({ error: "issue not found invalid _id" });
 
-        const deletedIssue = projectDoc.issues.splice(issueIndex, 1)[0];
-
+        projectDoc.issues.splice(issueIndex, 1)[0];
         await projectDoc.save();
 
-        return res.json(deletedIssue);
+        return res.json({ result: "successfully deleted", _id });
       } catch (err) {
-        res.json({ error: err.message });
+        res.json({ error: "could not delete", _id });
       }
     });
 };
