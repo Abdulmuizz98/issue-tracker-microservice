@@ -90,7 +90,7 @@ module.exports = function (app) {
 
         return res.json({ result: "successfully updated", _id });
       } catch (err) {
-        res.json({ error: "could not update", _id });
+        return res.json({ error: "could not update", _id });
       }
     })
 
@@ -117,7 +117,7 @@ module.exports = function (app) {
 
         return res.json({ result: "successfully deleted", _id });
       } catch (err) {
-        res.json({ error: "could not delete", _id });
+        return res.json({ error: "could not delete", _id });
       }
     });
 };
